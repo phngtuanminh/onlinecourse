@@ -1,0 +1,38 @@
+{% extends 'onlinecourse/base.html' %}
+{% block content %}
+<h2>{{ course.name }}</h2>
+<p class="lead">{{ course.description }}</p>
+<hr>
+<h4>Lessons</h4>
+{% for lesson in course.lesson_set.all %}
+<div class="card mb-3">
+    <div class="card-header"><strong>{{ lesson.order }}. {{ lesson.title }}</strong></div>
+    <div class="card-body"><p>{{ lesson.content }}</p></div>
+</div>
+{% endfor %}
+
+{% if enrollment %}
+<hr>
+<h4>Exam</h4>
+<form method="post" action="{% url 'onlinecourse:submit' course.id %}">
+    {% csrf_token %}
+    {% for question in course.question_set.all %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6>{{ forloop.counter }}. {{ question.question_text }} <span class="badge badge-info">{{ question.grade }} pts</span></h6>
+            {% for choice in question.choice_set.all %}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox"
+                       name="choice{{ question.id }}"
+                       value="{{ choice.id }}"
+                       id="choice{{ choice.id }}">
+                <label class="form-check-label" for="choice{{ choice.id }}">{{ choice.choice_text }}</label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit Exam</button>
+</form>
+{% endif %}
+{% endblock %}
